@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+ 		http://www.springframework.org/schema/beans
+ 		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+
+    <import resource="jdbcContext.xml"/>
+    <import resource="serviceContext.xml"/>
+    <import resource="modelsContext.xml"/>
+
+    <bean id="map" class="java.util.HashMap"/>
+
+    <bean id="menu" class="org.russow.views.Menu">
+        <constructor-arg ref="driver"/>
+        <constructor-arg ref="ref"/>
+        <constructor-arg ref="catalogMenu"/>
+        <constructor-arg ref="orderHistoryMenu"/>
+        <constructor-arg ref="orderItem"/>
+        <constructor-arg ref="couponMenu"/>
+        <constructor-arg ref="createGoodsMenu"/>
+        <constructor-arg ref="closeShop"/>
+        <constructor-arg ref="customerRepository"/>
+        <constructor-arg ref="map"/>
+    </bean>
+
+    <bean id="catalogMenu" class="org.russow.views.impl.CatalogMenuItem">
+        <constructor-arg ref="categoryRepository"/>
+        <constructor-arg ref="categoryMenu"/>
+        <constructor-arg ref="map"/>
+    </bean>
+
+    <bean id="categoryMenu" class="org.russow.views.impl.CategoryMenuItem">
+        <constructor-arg ref="goodRepository"/>
+    </bean>
+
+    <bean id="closeShop" class="org.russow.views.impl.CloseShop"/>
+
+    <bean id="couponMenu" class="org.russow.views.impl.CouponMenuItem">
+        <constructor-arg ref="couponService"/>
+    </bean>
+
+    <bean id="createGoodsMenu" class="org.russow.views.impl.CreateGoodsMenuItem">
+        <constructor-arg ref="goodService"/>
+    </bean>
+
+    <bean id="orderHistoryMenu" class="org.russow.views.impl.OrderHistoryView"/>
+
+    <bean id="orderItem" class="org.russow.views.impl.OrderItem">
+        <constructor-arg ref="orderService"/>
+        <constructor-arg ref="couponRepository"/>
+        <constructor-arg ref="coupon"/>
+    </bean>
+
+    <bean id="ref" class="org.russow.views.impl.Ref"/>
+</beans>
