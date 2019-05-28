@@ -1,25 +1,23 @@
 package org.russow.views.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.russow.jdbc.JDBCUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.russow.service.impl.CouponServiceImpl;
+import org.russow.service.CouponService;
 import org.russow.views.Executable;
-import org.russow.views.Menu;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.sql.Connection;
 
+@Component
 @Slf4j
 @Data
 public class CouponMenuItem implements Executable {
 
-    private CouponServiceImpl couponService;
+    private CouponService couponService;
     private BufferedReader reader;
 
-    public CouponMenuItem(CouponServiceImpl couponService) {
+    public CouponMenuItem(CouponService couponService) {
         this.couponService = couponService;
     }
 

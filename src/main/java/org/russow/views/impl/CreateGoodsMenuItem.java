@@ -1,26 +1,24 @@
 package org.russow.views.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.russow.jdbc.JDBCUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.russow.service.impl.GoodServiceImpl;
+import org.russow.service.GoodService;
 import org.russow.views.Executable;
-import org.russow.views.Menu;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
 
+@Component
 @Slf4j
 @Data
 public class CreateGoodsMenuItem implements Executable {
 
-    private GoodServiceImpl goodService;
+    private GoodService goodService;
     private BufferedReader reader;
 
-    public CreateGoodsMenuItem(GoodServiceImpl goodService) {
+    public CreateGoodsMenuItem(GoodService goodService) {
         this.goodService = goodService;
     }
 
@@ -36,7 +34,7 @@ public class CreateGoodsMenuItem implements Executable {
             System.out.print("\nВведите путь до файла: ");
             String path = reader.readLine();
 
-            goodService.addGoods(new File(path));
+            goodService.addGoodsFromFile(new File(path));
 
             flag = true;
         } catch (IOException e) {

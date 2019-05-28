@@ -1,24 +1,28 @@
 package org.russow.views;
 
-import org.russow.jdbc.JDBCUtils;
-import org.russow.jdbc.repository.impl.CustomerRepositryImpl;
+import lombok.NoArgsConstructor;
+import org.russow.repository.CustomerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.russow.model.Customer;
 import org.russow.views.impl.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component
 @Slf4j
+@NoArgsConstructor
 public class Menu {
 
-    private static Customer customer;
+    private static Customer currentCustomer;
 
     private String customerName;
-    private JDBCUtils driver;
     private Ref ref;
     private CatalogMenuItem catalogMenuItem;
     private OrderHistoryView orderHistoryView;
@@ -26,16 +30,13 @@ public class Menu {
     private CouponMenuItem couponMenuItem;
     private CreateGoodsMenuItem createGoodsMenuItem;
     private CloseShop closeShop;
-    private CustomerRepositryImpl customerRepository;
+    private CustomerRepository customerRepository;
 
-    private Map<Integer, Executable> menuItems;
+    private Map<Integer, Executable> menuItems = new HashMap<>();
 
-    public Menu(JDBCUtils driver, Ref ref, CatalogMenuItem catalogMenuItem, OrderHistoryView orderHistoryView,
+    public Menu(Ref ref, CatalogMenuItem catalogMenuItem, OrderHistoryView orderHistoryView,
                 OrderItem orderItem, CouponMenuItem couponMenuItem,
-                CreateGoodsMenuItem createGoodsMenuItem, CloseShop closeShop, CustomerRepositryImpl customerRepository,
-                Map<Integer, Executable> menuItems) {
-
-        this.driver = driver;
+                CreateGoodsMenuItem createGoodsMenuItem, CloseShop closeShop, CustomerRepository customerRepository) {
         this.ref = ref;
         this.catalogMenuItem = catalogMenuItem;
         this.orderHistoryView = orderHistoryView;
@@ -44,11 +45,10 @@ public class Menu {
         this.createGoodsMenuItem = createGoodsMenuItem;
         this.closeShop = closeShop;
         this.customerRepository = customerRepository;
-        this.menuItems = menuItems;
     }
 
     public static Customer getCustomer() {
-        return customer;
+        return currentCustomer;
     }
 
     public void getCommand() {
@@ -94,7 +94,7 @@ public class Menu {
 
                 setCustomer(customerName);
 
-                if (customer.getId() == -1) {
+                if (currentCustomer.getId() == -1) {
                     throw new IOException();
                 }
 
@@ -106,15 +106,15 @@ public class Menu {
             }
         }
 
-        return customer;
+        return currentCustomer;
     }
 
     private void setCustomer(String customerName) {
         List<Customer> customers = customerRepository.getCustomers();
 
-        for (Customer temp : customers) {
-            if (temp.getName().equals(customerName)) {
-                customer = temp;
+        for (Customer customer : customers) {
+            if (customer.getName().equals(customerName)) {
+                currentCustomer = customer;
             }
         }
     }

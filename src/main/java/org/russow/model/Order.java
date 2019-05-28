@@ -1,19 +1,42 @@
 package org.russow.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Collection;
 
-@NoArgsConstructor
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "orders")
 public class Order {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(name = "order_date")
     private LocalDate date;
+
+    @Column(name = "total_price")
     private int totalPrice;
+
+    @ManyToOne
+    @JoinColumn(name = "status_id")
     private OrderStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "coupon_id")
     private Coupon coupon;
-    private List<Good> goods;
+
+    @ToString.Exclude
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "goods_orders",
+            joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "good_id"))
+    private Collection<Good> goods;
 }

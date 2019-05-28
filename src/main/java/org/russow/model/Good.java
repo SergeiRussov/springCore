@@ -4,13 +4,26 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.*;
+
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Entity
+@Table(name = "goods")
 public class Good {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(name = "name")
     private String name;
+
+    @Column(name = "price")
     private int price;
-    private int categoryId;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 }

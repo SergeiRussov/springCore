@@ -1,29 +1,30 @@
 package org.russow.views.impl;
 
 import lombok.Data;
-import org.russow.jdbc.repository.impl.CouponRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.russow.model.Coupon;
 import org.russow.model.Good;
 import org.russow.model.Order;
-import org.russow.service.impl.OrderServiceImpl;
+import org.russow.repository.CouponRepository;
+import org.russow.service.OrderService;
 import org.russow.views.Executable;
-import org.russow.views.Menu;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 
+@Component
 @Slf4j
 @Data
 public class OrderItem implements Executable {
 
     private Order order;
-    private OrderServiceImpl orderService;
-    private CouponRepositoryImpl couponRepository;
+    private OrderService orderService;
+    private CouponRepository couponRepository;
     private Coupon coupon;
     private BufferedReader reader;
 
-    public OrderItem(OrderServiceImpl orderService, CouponRepositoryImpl couponRepository,
+    public OrderItem(OrderService orderService, CouponRepository couponRepository,
                      Coupon coupon) {
         this.orderService = orderService;
         this.couponRepository = couponRepository;
@@ -87,8 +88,8 @@ public class OrderItem implements Executable {
             int answer = Integer.parseInt(reader.readLine());
             if (answer == 1) {
                 System.out.println("Введите ID купона: ");
-                int id = Integer.parseInt(reader.readLine());
-                order.setCoupon(couponRepository.getCouponFromId(id));
+                int couponId = Integer.parseInt(reader.readLine());
+                order.setCoupon(couponRepository.getCouponById(couponId));
 
                 int newTotalPrice = order.getTotalPrice() - (order.getTotalPrice() / 100 * order.getCoupon().getDiscount());
                 order.setTotalPrice(newTotalPrice);

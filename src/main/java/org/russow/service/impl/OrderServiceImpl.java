@@ -1,104 +1,48 @@
 package org.russow.service.impl;
 
-import lombok.AllArgsConstructor;
-import org.russow.jdbc.JDBCUtils;
-import org.russow.jdbc.repository.impl.OrderRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.russow.model.Good;
 import org.russow.model.Order;
 import org.russow.service.OrderService;
-import org.russow.views.Menu;
+import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceContext;
 
+@Service
 @Slf4j
-@AllArgsConstructor
 public class OrderServiceImpl implements OrderService<Order> {
 
-    private JDBCUtils driver;
-    private OrderRepositoryImpl orderRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private EntityTransaction transaction;
 
     @Override
     public boolean addOrder(Order order) {
-        boolean result = false;
+        boolean result;
 
-        Connection connection = driver.createConnection();
+        transaction = entityManager.getTransaction();
+        transaction.begin();
 
-        try (PreparedStatement statement = connection.prepareStatement(SQLOrder.ADD_ORDER.QUERY)) {
-            statement.setDate(1, Date.valueOf(order.getDate()));
-            statement.setInt(2, order.getTotalPrice());
-            statement.setInt(3, 1);
-            statement.setInt(4, order.getCoupon().getId());
+        entityManager.persist(order);
+        transaction.commit();
 
-            statement.executeUpdate();
+        entityManager.close();
 
-            List<Order> lastOrders = orderRepository.getOrders();
-            Order lastOrder = lastOrders.get(lastOrders.size() - 1);
-
-            for (Good good : order.getGoods()) {
-                addGoodsOrderDep(lastOrder.getId(), good.getId(), connection);
-            }
-
-            addCustOrderDep(Menu.getCustomer().getId(), lastOrder.getId(), connection);
-
-            result = true;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-        } finally {
-            driver.closeConnection(connection);
-        }
+        result = true;
 
         return result;
     }
 
-    private boolean addCustOrderDep(int customerId, int orderId, Connection connection) {
-        boolean result = false;
+    enum SQLOrderService {
 
-        try (PreparedStatement statement = connection.prepareStatement(SQLOrder.ADD_CUSTOMER_ORDERS_DEP.QUERY)) {
-            statement.setInt(1, customerId);
-            statement.setInt(2, orderId);
-
-            statement.executeUpdate();
-
-            result = true;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-        }
-
-        return result;
-    }
-
-    private boolean addGoodsOrderDep(int orderId, int goodId, Connection connection) {
-        boolean result = false;
-
-        try (PreparedStatement statement = connection.prepareStatement(SQLOrder.ADD_ORDER_GOOD_DEP.QUERY)) {
-            statement.setInt(1, orderId);
-            statement.setInt(2, goodId);
-
-            statement.executeUpdate();
-
-            result = true;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-        }
-
-        return result;
-    }
-
-    enum SQLOrder {
-
-        ADD_ORDER("INSERT INTO orders (order_date, total_price, status_id, coupon_id) " +
-                "VALUES (?, ?, ?, ?)"),
         ADD_CUSTOMER_ORDERS_DEP("INSERT INTO customers_orders VALUES (?, ?)"),
         ADD_ORDER_GOOD_DEP("INSERT INTO goods_orders VALUES (?,?)");
 
         String QUERY;
 
-        SQLOrder(String QUERY) {
+        SQLOrderService(String QUERY) {
             this.QUERY = QUERY;
         }
     }

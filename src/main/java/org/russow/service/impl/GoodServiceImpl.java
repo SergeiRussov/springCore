@@ -2,30 +2,33 @@ package org.russow.service.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.russow.jdbc.JDBCUtils;
 import org.russow.model.Good;
 import org.russow.service.GoodService;
+import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceContext;
 import java.io.*;
 import java.lang.reflect.Type;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
+@Service
 @Slf4j
-@AllArgsConstructor
 public class GoodServiceImpl implements GoodService {
 
-    private JDBCUtils driver;
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private EntityTransaction transaction;
     private Gson gson;
 
     @Override
-    public boolean addGoods(File file) {
-        Type itemsListType = new TypeToken<List<Good>>() {}.getType();
+    public boolean addGoodsFromFile(File file) {
         boolean result = false;
+
+        Type itemsListType = new TypeToken<List<Good>>() {}.getType();
 
         try (Reader reader = new FileReader(file)) {
             List<Good> newGoods = gson.fromJson(reader, itemsListType);
@@ -42,36 +45,19 @@ public class GoodServiceImpl implements GoodService {
         return result;
     }
 
-    private boolean addGoodFromBase(Good newGood) {
-        boolean result = false;
+    private boolean addGoodFromBase(Good good) {
+        boolean result;
 
-        Connection connection = driver.createConnection();
+        transaction = entityManager.getTransaction();
+        transaction.begin();
 
-        try (PreparedStatement statement = connection.prepareStatement(SQLGood.ADD_GOOD.QUERY)) {
-            statement.setString(1, newGood.getName());
-            statement.setInt(2, newGood.getPrice());
-            statement.setInt(3, newGood.getCategoryId());
+        entityManager.persist(good);
+        transaction.commit();
 
-            statement.executeUpdate();
+        entityManager.close();
 
-            result = true;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-        } finally {
-            driver.closeConnection(connection);
-        }
+        result = true;
 
         return result;
-    }
-
-    enum SQLGood {
-
-        ADD_GOOD("INSERT INTO goods (name, price, category_id) VALUES (?, ?, ?)");
-
-        String QUERY;
-
-        SQLGood(String QUERY) {
-            this.QUERY = QUERY;
-        }
     }
 }

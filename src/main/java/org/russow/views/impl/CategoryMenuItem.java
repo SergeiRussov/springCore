@@ -1,32 +1,35 @@
 package org.russow.views.impl;
 
-import lombok.AllArgsConstructor;
-import org.russow.jdbc.JDBCUtils;
-import org.russow.jdbc.repository.impl.GoodRepositoryImpl;
+
+import org.russow.repository.GoodRepository;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.russow.model.Good;
 import org.russow.model.Order;
 import org.russow.views.Executable;
-import org.russow.views.Menu;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 @Slf4j
 @Data
 public class CategoryMenuItem implements Executable {
 
     private static Order order;
-    private GoodRepositoryImpl goodRepository;
+    private GoodRepository goodRepository;
     private int id;
     private BufferedReader reader;
 
-    public CategoryMenuItem(GoodRepositoryImpl goodRepository) {
+    public CategoryMenuItem() {
+
+    }
+
+    public CategoryMenuItem(GoodRepository goodRepository) {
         this.goodRepository = goodRepository;
     }
 
@@ -64,7 +67,7 @@ public class CategoryMenuItem implements Executable {
 
             order.setGoods(goodList);
         } else {
-            goodList = order.getGoods();
+            goodList = (List<Good>) order.getGoods();
 
             addGoods(goodList);
             order.setGoods(goodList);

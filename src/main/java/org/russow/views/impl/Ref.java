@@ -2,7 +2,9 @@ package org.russow.views.impl;
 
 import org.russow.views.Executable;
 import org.russow.views.Menu;
+import org.springframework.stereotype.Component;
 
+@Component
 public class Ref implements Executable {
 
     private int roleId;

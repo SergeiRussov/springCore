@@ -1,49 +1,40 @@
 package org.russow.service.impl;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.russow.jdbc.JDBCUtils;
+import org.russow.model.Coupon;
 import org.russow.service.CouponService;
+import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceContext;
 
+@Service
 @Slf4j
-@AllArgsConstructor
 public class CouponServiceImpl implements CouponService {
 
-    private JDBCUtils driver;
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private EntityTransaction transaction;
 
     @Override
     public boolean addCoupon(int discount) {
-        boolean result = false;
+        boolean result;
 
-        Connection connection = driver.createConnection();
+        transaction = entityManager.getTransaction();
+        transaction.begin();
 
-        try (PreparedStatement statement = connection.prepareStatement(SQLCoupon.ADD_COUPON.QUERY)) {
-            statement.setInt(1, discount);
+        Coupon coupon = new Coupon();
+        coupon.setDiscount(discount);
 
-            statement.executeUpdate();
+        entityManager.persist(coupon);
+        transaction.commit();
 
-            result = true;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-        } finally {
-            driver.closeConnection(connection);
-        }
+        entityManager.close();
+
+        result = true;
 
         return result;
-    }
-
-    enum SQLCoupon {
-
-        ADD_COUPON("INSERT INTO coupons (discount) VALUES (?)");
-
-        String QUERY;
-
-        SQLCoupon(String QUERY) {
-            this.QUERY = QUERY;
-        }
     }
 }

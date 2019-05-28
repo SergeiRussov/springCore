@@ -1,32 +1,32 @@
 package org.russow.views.impl;
 
-import lombok.AllArgsConstructor;
-import org.russow.jdbc.repository.impl.CategoryRepositoryImpl;
+import org.russow.repository.CategoryRepository;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.russow.model.Category;
 import org.russow.views.Executable;
-import org.russow.views.Menu;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Component
 @Slf4j
 @Data
 public class CatalogMenuItem implements Executable {
 
-    private CategoryRepositoryImpl categoryRepository;
+    private CategoryRepository categoryRepository;
     private CategoryMenuItem categoryMenuItem;
-    private Map<Integer, Executable> categoryMenuItems;
     private BufferedReader reader;
 
-    public CatalogMenuItem(CategoryRepositoryImpl categoryRepository, CategoryMenuItem categoryMenuItem,
-                           Map<Integer, Executable> categoryMenuItems) {
+    private Map<Integer, Executable> categoryMenuItems = new HashMap<>();
+
+    public CatalogMenuItem(CategoryRepository categoryRepository, CategoryMenuItem categoryMenuItem) {
         this.categoryRepository = categoryRepository;
         this.categoryMenuItem = categoryMenuItem;
-        this.categoryMenuItems = categoryMenuItems;
     }
 
     @Override

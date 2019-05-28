@@ -2,7 +2,9 @@ package org.russow.views.impl;
 
 import lombok.Data;
 import org.russow.views.Executable;
+import org.springframework.stereotype.Component;
 
+@Component
 @Data
 public class CloseShop implements Executable {
 
