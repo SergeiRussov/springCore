@@ -35,8 +35,14 @@ public class Order {
     private Coupon coupon;
 
     @ToString.Exclude
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "goods_orders",
             joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "good_id"))
     private Collection<Good> goods;
+
+    @ToString.Exclude
+    @ManyToMany
+    @JoinTable(name = "customers_orders",
+            joinColumns = @JoinColumn(name = "order_id"), inverseJoinColumns = @JoinColumn(name = "customer_id"))
+    private Collection<Customer> customer;
 }

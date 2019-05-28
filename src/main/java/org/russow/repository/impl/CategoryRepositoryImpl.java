@@ -5,8 +5,12 @@ import org.russow.model.Category;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Component
@@ -15,16 +19,21 @@ public class CategoryRepositoryImpl implements CategoryRepository<Category> {
     @PersistenceContext()
     private EntityManager entityManager;
 
-    private EntityTransaction transaction;
+    private CriteriaBuilder criteriaBuilder;
 
     @Override
+    @Transactional
     public List<Category> getCategories() {
-        transaction = entityManager.getTransaction();
-        transaction.begin();
+        criteriaBuilder = entityManager.getCriteriaBuilder();
 
-        final List<Category> categories = entityManager.createQuery("from Category", Category.class).getResultList();
+        CriteriaQuery<Category> categoryCriteriaQuery = criteriaBuilder.createQuery(Category.class);
+        Root<Category> categoryRoot = categoryCriteriaQuery.from(Category.class);
+        CriteriaQuery<Category> allCategories = categoryCriteriaQuery.select(categoryRoot);
 
-        transaction.commit();
+        TypedQuery<Category> allCategoriesQuery = entityManager.createQuery(allCategories);
+
+        final List<Category> categories = allCategoriesQuery.getResultList();
+
         entityManager.close();
 
         return categories;

@@ -8,10 +8,12 @@ import org.russow.model.Order;
 import org.russow.repository.CouponRepository;
 import org.russow.service.OrderService;
 import org.russow.views.Executable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Collections;
 
 @Component
 @Slf4j
@@ -24,8 +26,10 @@ public class OrderItem implements Executable {
     private Coupon coupon;
     private BufferedReader reader;
 
-    public OrderItem(OrderService orderService, CouponRepository couponRepository,
+    @Autowired
+    public OrderItem(Order order, OrderService orderService, CouponRepository couponRepository,
                      Coupon coupon) {
+        this.order = order;
         this.orderService = orderService;
         this.couponRepository = couponRepository;
         this.coupon = coupon;
@@ -76,6 +80,7 @@ public class OrderItem implements Executable {
             if (answer == 1) {
                 addCoupon(reader);
                 orderService.addOrder(order);
+                CategoryMenuItem.setOrderIsNull();
             }
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -89,7 +94,7 @@ public class OrderItem implements Executable {
             if (answer == 1) {
                 System.out.println("Введите ID купона: ");
                 int couponId = Integer.parseInt(reader.readLine());
-                order.setCoupon(couponRepository.getCouponById(couponId));
+                order.setCoupon((Coupon) couponRepository.getCouponById(couponId).get(0));
 
                 int newTotalPrice = order.getTotalPrice() - (order.getTotalPrice() / 100 * order.getCoupon().getDiscount());
                 order.setTotalPrice(newTotalPrice);

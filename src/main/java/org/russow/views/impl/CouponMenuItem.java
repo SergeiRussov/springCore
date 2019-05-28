@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.russow.service.CouponService;
 import org.russow.views.Executable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -17,6 +18,7 @@ public class CouponMenuItem implements Executable {
     private CouponService couponService;
     private BufferedReader reader;
 
+    @Autowired
     public CouponMenuItem(CouponService couponService) {
         this.couponService = couponService;
     }
@@ -37,6 +39,8 @@ public class CouponMenuItem implements Executable {
 
             flag = true;
         } catch (IOException e) {
+            log.error(e.getMessage());
+        } catch (NumberFormatException e) {
             log.error(e.getMessage());
         }
 

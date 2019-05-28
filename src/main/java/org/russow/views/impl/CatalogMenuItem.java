@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.russow.model.Category;
 import org.russow.views.Executable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -24,6 +25,7 @@ public class CatalogMenuItem implements Executable {
 
     private Map<Integer, Executable> categoryMenuItems = new HashMap<>();
 
+    @Autowired
     public CatalogMenuItem(CategoryRepository categoryRepository, CategoryMenuItem categoryMenuItem) {
         this.categoryRepository = categoryRepository;
         this.categoryMenuItem = categoryMenuItem;
@@ -32,7 +34,6 @@ public class CatalogMenuItem implements Executable {
     @Override
     public void run() {
         fillCategoryMenuItem();
-        categoryMenuItem.setReader(reader);
         selectCategory(reader);
     }
 
@@ -41,8 +42,9 @@ public class CatalogMenuItem implements Executable {
 
         for (Category category : list) {
             System.out.println(category.getId() + ". " + category.getName());
-            categoryMenuItem.setId(category.getId());
-            categoryMenuItems.put(category.getId(), categoryMenuItem);
+            CategoryMenuItem categoryById = new CategoryMenuItem(categoryMenuItem);
+            categoryById.setId(category.getId());
+            categoryMenuItems.put(category.getId(), categoryById);
         }
     }
 

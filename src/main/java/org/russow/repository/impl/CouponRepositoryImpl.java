@@ -3,46 +3,55 @@ package org.russow.repository.impl;
 import org.russow.model.Coupon;
 import org.russow.repository.CouponRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import javax.persistence.Parameter;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.ParameterExpression;
 import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Component
 public class CouponRepositoryImpl implements CouponRepository<Coupon> {
 
-    @PersistenceContext()
+    @PersistenceContext
     private EntityManager entityManager;
 
-    private EntityTransaction transaction;
     private CriteriaBuilder criteriaBuilder;
 
     @Override
-    public Coupon getCouponById(int couponId) {
+    @Transactional
+    public List<Coupon> getCouponById(int couponId) {
         criteriaBuilder = entityManager.getCriteriaBuilder();
-        transaction = entityManager.getTransaction();
-        transaction.begin();
 
         CriteriaQuery<Coupon> couponCriteriaQuery = criteriaBuilder.createQuery(Coupon.class);
         Root<Coupon> couponRoot = couponCriteriaQuery.from(Coupon.class);
-        couponCriteriaQuery.select(couponRoot);
-        couponCriteriaQuery.where(criteriaBuilder.equal(couponRoot.get("id"), ":couponId"));
+        ParameterExpression<Integer> value = criteriaBuilder.parameter(Integer.class);
+        couponCriteriaQuery.select(couponRoot).where(criteriaBuilder.equal(couponRoot.get("id"), value));
 
         TypedQuery<Coupon> query = entityManager.createQuery(couponCriteriaQuery);
-        query.setParameter("couponId", couponId);
+        query.setParameter(value, couponId);
 
-        final List<Coupon> coupons = entityManager.createQuery(couponCriteriaQuery).getResultList();
-
-        transaction.commit();
+        final List<Coupon> coupons = query.getResultList();
         entityManager.close();
 
-        Coupon coupon = coupons.get(0);
+        return coupons;
+    }
 
-        return coupon;
+    @Override
+    @Transactional
+    public boolean addCoupon(Coupon coupon) {
+        boolean result;
+
+        entityManager.persist(coupon);
+        entityManager.close();
+
+        result = true;
+
+        return result;
     }
 }

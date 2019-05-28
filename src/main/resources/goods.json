@@ -1,20 +1,20 @@
 [
     {
-      "id": null,
-      "name": "intel core i7 8700k",
+      "name": "intel core i9 9900k",
       "price": 25000,
-      "categoryId": 1
+      "category":
+        {"id": 1, "name": "computer hardware"}
     },
     {
-      "id": null,
       "name": "amd ryzen 2600",
       "price": 11000,
-      "categoryId": 1
+      "category":
+        {"id": 1, "name": "computer hardware"}
     },
     {
-      "id": null,
-      "name": "amd ryzen 2700x",
+      "name": "amd ryzen 3900x",
       "price": 18000,
-      "categoryId": 2
+      "category":
+        {"id": 2, "name": "computer peripherals"}
     }
 ]

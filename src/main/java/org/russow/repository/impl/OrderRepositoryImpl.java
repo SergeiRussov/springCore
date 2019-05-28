@@ -1,16 +1,15 @@
-package org.russow.service.impl;
+package org.russow.repository.impl;
 
 import org.russow.model.Order;
-import org.russow.model.OrderStatus;
-import org.russow.service.OrderService;
-import org.springframework.stereotype.Service;
+import org.russow.repository.OrderRepository;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-@Service
-public class OrderServiceImpl implements OrderService<Order> {
+@Component
+public class OrderRepositoryImpl implements OrderRepository<Order> {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -20,10 +19,8 @@ public class OrderServiceImpl implements OrderService<Order> {
     public boolean addOrder(Order order) {
         boolean result;
 
-        OrderStatus orderStatus = new OrderStatus(1, "order processing");
-        order.setStatus(orderStatus);
-
         entityManager.persist(order);
+        entityManager.close();
 
         result = true;
 

@@ -1,12 +1,14 @@
 package org.russow.views.impl;
 
-
+import org.russow.model.Customer;
 import org.russow.repository.GoodRepository;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.russow.model.Good;
 import org.russow.model.Order;
 import org.russow.views.Executable;
+import org.russow.views.Menu;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -25,16 +27,22 @@ public class CategoryMenuItem implements Executable {
     private int id;
     private BufferedReader reader;
 
-    public CategoryMenuItem() {
-
-    }
-
+    @Autowired
     public CategoryMenuItem(GoodRepository goodRepository) {
         this.goodRepository = goodRepository;
     }
 
+    public CategoryMenuItem(CategoryMenuItem categoryMenuItem) {
+        this.goodRepository = categoryMenuItem.goodRepository;
+        this.reader = categoryMenuItem.reader;
+    }
+
     public static Order getOrder() {
         return order;
+    }
+
+    public static void setOrderIsNull() {
+        order = null;
     }
 
     @Override
@@ -61,10 +69,13 @@ public class CategoryMenuItem implements Executable {
         if (order == null) {
             order = new Order();
             order.setDate(LocalDate.now());
+
+            List<Customer> customers = new ArrayList<>();
+            customers.add(Menu.getCustomer());
+            order.setCustomer(customers);
+
             goodList = new ArrayList<>();
-
             addGoods(goodList);
-
             order.setGoods(goodList);
         } else {
             goodList = (List<Good>) order.getGoods();

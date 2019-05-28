@@ -31,12 +31,15 @@ public class Menu {
     private CreateGoodsMenuItem createGoodsMenuItem;
     private CloseShop closeShop;
     private CustomerRepository customerRepository;
+    private CategoryMenuItem categoryMenuItem;
 
     private Map<Integer, Executable> menuItems = new HashMap<>();
 
+    @Autowired
     public Menu(Ref ref, CatalogMenuItem catalogMenuItem, OrderHistoryView orderHistoryView,
                 OrderItem orderItem, CouponMenuItem couponMenuItem,
-                CreateGoodsMenuItem createGoodsMenuItem, CloseShop closeShop, CustomerRepository customerRepository) {
+                CreateGoodsMenuItem createGoodsMenuItem, CloseShop closeShop, CustomerRepository customerRepository,
+                CategoryMenuItem categoryMenuItem) {
         this.ref = ref;
         this.catalogMenuItem = catalogMenuItem;
         this.orderHistoryView = orderHistoryView;
@@ -45,6 +48,7 @@ public class Menu {
         this.createGoodsMenuItem = createGoodsMenuItem;
         this.closeShop = closeShop;
         this.customerRepository = customerRepository;
+        this.categoryMenuItem = categoryMenuItem;
     }
 
     public static Customer getCustomer() {
@@ -57,9 +61,11 @@ public class Menu {
             customerLogin(reader);
 
             catalogMenuItem.setReader(reader);
+
             couponMenuItem.setReader(reader);
             createGoodsMenuItem.setReader(reader);
             orderItem.setReader(reader);
+            categoryMenuItem.setReader(reader);
 
             menuItems.put(0, closeShop);
             menuItems.put(1, ref);
@@ -86,7 +92,6 @@ public class Menu {
     }
 
     private Customer customerLogin(BufferedReader reader) {
-
         while (true) {
             try {
                 System.out.print("Введите полное имя пользователя: ");
@@ -94,7 +99,7 @@ public class Menu {
 
                 setCustomer(customerName);
 
-                if (currentCustomer.getId() == -1) {
+                if (currentCustomer == null) {
                     throw new IOException();
                 }
 

@@ -15,7 +15,7 @@ public class Ref implements Executable {
 
     @Override
     public void run() {
-        roleId = Menu.getCustomer().getId();
+        roleId = Menu.getCustomer().getRole().getId();
         showMenu();
     }
 
